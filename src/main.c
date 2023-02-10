@@ -2,12 +2,13 @@
 #define PRIMARY_MOTOR_PORT 1
 
 void rust_initalize();
+void rust_disabled();
 void rust_autonomous();
 void rust_usercontrol();
 
 void initialize() { rust_initalize(); }
 
-void disabled() {}
+void disabled() { }
 
 void competition_initialize() {}
 

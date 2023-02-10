@@ -9,6 +9,5 @@ crate-type = ["staticlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-embedded-alloc = "0.5.0"
 no-std-compat = { version = "0.4.1", features = ["alloc"] }
 panic-halt = "0.2.0"
