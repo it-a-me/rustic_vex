@@ -31,7 +31,15 @@ fn print(text: &str) {
 pub extern "C" fn rust_initalize() {}
 
 #[no_mangle]
-pub extern "C" fn rust_autonomous() {}
+pub extern "C" fn rust_autonomous() {
+    let mut i = 0;
+    let c = controller::Controller::new(controller::ControllerType::Primary);
+    loop {
+        c.print(0, format!("{i}").as_ptr() as *const i8);
+        i += 1;
+        sleep(i);
+    }
+}
 #[no_mangle]
 pub extern "C" fn rust_disabled() {}
 #[no_mangle]
@@ -39,10 +47,6 @@ pub extern "C" fn rust_usercontrol() {
     loop {
         let c = controller::Controller::new(controller::ControllerType::Primary);
         let mut m = motor::Motor::new(1, motor::BrakeMode::Hold, motor::GearSet::Blue);
-        c.print(
-            0,
-            format!("{}", c.is_down(controller::Button::B)).as_ptr() as *const i8,
-        );
         if c.is_down(controller::Button::B) {
             m.spin(100);
         } else {
