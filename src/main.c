@@ -1,22 +1,16 @@
 #include "main.h"
 #define PRIMARY_MOTOR_PORT 1
-void dong();
 
-void initialize() {}
+void rust_initalize();
+void rust_autonomous();
+void rust_usercontrol();
+
+void initialize() { rust_initalize(); }
 
 void disabled() {}
 
 void competition_initialize() {}
 
-void autonomous() {}
+void autonomous() { rust_autonomous(); }
 
-void opcontrol() {
-  int i = 0;
-  while (true) {
-      i++;
-
-    printf("%d\n", i);
-    dong();
-    sleep(1);
-  }
-}
+void opcontrol() { rust_usercontrol(); }
