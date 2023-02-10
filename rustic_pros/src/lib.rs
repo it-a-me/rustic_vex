@@ -10,6 +10,11 @@ mod controller;
 mod libc;
 mod motor;
 mod pros;
+use no_std_compat::prelude::v1::*;
+
+#[global_allocator]
+static ALLOCATOR: emballoc::Allocator<4096> = emballoc::Allocator::new();
+
 use libc::stdio;
 fn sleep(millis: u32) {
     unsafe {
@@ -26,20 +31,7 @@ fn print(text: &str) {
 pub extern "C" fn rust_initalize() {}
 
 #[no_mangle]
-pub extern "C" fn rust_autonomous() {
-    loop {
-        let c = controller::Controller::new(controller::ControllerType::Primary);
-        let mut m = motor::Motor::new(1, motor::BrakeMode::Hold, motor::GearSet::Blue);
-        if c.is_down(controller::Button::A) {
-            m.spin(-60);
-            print("down\n");
-        } else {
-            m.brake();
-            print("up\n");
-        }
-        sleep(200);
-    }
-}
+pub extern "C" fn rust_autonomous() {}
 #[no_mangle]
 pub extern "C" fn rust_disabled() {}
 #[no_mangle]
@@ -47,12 +39,14 @@ pub extern "C" fn rust_usercontrol() {
     loop {
         let c = controller::Controller::new(controller::ControllerType::Primary);
         let mut m = motor::Motor::new(1, motor::BrakeMode::Hold, motor::GearSet::Blue);
+        c.print(
+            0,
+            format!("{}", c.is_down(controller::Button::B)).as_ptr() as *const i8,
+        );
         if c.is_down(controller::Button::B) {
             m.spin(100);
-            print("down\n");
         } else {
             m.brake();
-            print("up\n");
         }
         sleep(200);
     }
