@@ -1,52 +1,44 @@
 #![no_std]
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
+use no_std_compat::prelude::v1::*;
 
 use panic_halt as _;
+
 mod controller;
 mod libc;
 mod motor;
 mod pros;
-use no_std_compat::prelude::v1::*;
+
+mod vex_logger;
+use vex_logger::VexLogger;
+static LOGGER: VexLogger = VexLogger;
 
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<4096> = emballoc::Allocator::new();
 
-use libc::stdio;
 fn sleep(millis: u32) {
     unsafe {
         pros::rtos::delay(millis);
     }
 }
-fn print(text: &str) {
-    unsafe {
-        libc::stdio::printf(text.as_ptr().cast());
-    }
-}
 
 #[no_mangle]
-pub extern "C" fn rust_initalize() {}
+pub extern "C" fn rust_initalize() {
+    vex_logger::init(log::LevelFilter::Trace);
+}
+#[no_mangle]
+pub extern "C" fn rust_competition_initalize() {}
 
 #[no_mangle]
-pub extern "C" fn rust_autonomous() {
-    let mut i = 0;
-    let c = controller::Controller::new(controller::ControllerType::Primary);
-    loop {
-        c.print(0, format!("{i}").as_ptr() as *const i8);
-        i += 1;
-        sleep(i);
-    }
-}
+pub extern "C" fn rust_autonomous() {}
 #[no_mangle]
 pub extern "C" fn rust_disabled() {}
 #[no_mangle]
 pub extern "C" fn rust_usercontrol() {
+    log::error!("errrrror");
+    log::trace!("ofund");
     loop {
         let c = controller::Controller::new(controller::ControllerType::Primary);
-        let mut m = motor::Motor::new(1, motor::BrakeMode::Hold, motor::GearSet::Blue);
+        let mut m = motor::Motor::new(1, motor::BrakeMode::Coast, motor::GearSet::Blue);
         if c.is_down(controller::Button::B) {
             m.spin(100);
         } else {

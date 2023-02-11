@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::pros::motors;
 pub struct Motor {
     velocity: i32,

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod inputs;
 use crate::pros::misc;
 pub use inputs::{Button, ControllerType, StickAxis};
