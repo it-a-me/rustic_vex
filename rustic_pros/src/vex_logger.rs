@@ -18,8 +18,9 @@ impl log::Log for VexLogger {
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
             let output = format!("{} - {}\n", record.level(), record.args());
+            let out = cstr_core::CString::new(output).unwrap();
             unsafe {
-                stdio::printf(output.as_ptr().cast());
+                stdio::printf(out.as_ptr().cast());
             }
         }
     }

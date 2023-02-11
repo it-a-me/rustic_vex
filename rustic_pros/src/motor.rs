@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use crate::pros::motors;
+
 pub struct Motor {
     velocity: i32,
     port: u8,
@@ -8,7 +9,7 @@ pub struct Motor {
     gear_set: GearSet,
     reversed: bool,
 }
-
+///how a motor should brake
 pub enum BrakeMode {
     Coast,
     Brake,
@@ -23,7 +24,7 @@ impl BrakeMode {
         }
     }
 }
-
+///a motor gear cartrige
 pub enum GearSet {
     Red,
     Green,
@@ -40,6 +41,7 @@ impl GearSet {
 }
 
 impl Motor {
+    ///create a new motor
     pub fn new(port: i8, brake_mode: BrakeMode, gear_set: GearSet) -> Self {
         let reversed = port.is_negative();
         let port: u8 = port.abs() as u8;
@@ -57,18 +59,40 @@ impl Motor {
             gear_set,
         }
     }
-
-    pub fn spin(&mut self, velocity: i32) {
-        self.velocity = velocity;
-        unsafe {
-            motors::motor_move(self.port, self.velocity);
-        }
+    ///Gets the temperature of the motor in degrees Celsius. The resolution of this eading is 5 degrees Celsius. The motor will start to reduce its power when the temperature reading is greater than or equal to 55 C.
+    pub fn temperature(&self) -> f64 {
+        unsafe { motors::motor_get_temperature(self.port) }
     }
-
+    ///Stops the motor using the currently configured brake mode.
+    ///
+    ///This function sets motor velocity to zero, which will cause it to act according to the set brake mode. If brake mode is set to MOTOR_BRAKE_HOLD, this function may behave differently than calling motor_move_absolute(0) or motor_move_relative(0).
     pub fn brake(&mut self) {
         self.velocity = 0;
         unsafe {
             motors::motor_brake(self.port);
         }
+    }
+    ///Sets the voltage for the motor
+    pub fn spin_voltage(&self, voltage_percent: i32) {
+        let voltage = voltage_percent * 12000 / 100;
+        unsafe {
+            motors::motor_move_voltage(self.port, voltage);
+        }
+    }
+    ///sets the velocity of the motor in rpm
+    pub fn spin_velocity(&self, velocity: i32) {
+        unsafe {
+            motors::motor_move_velocity(self.port, velocity);
+        }
+    }
+    ///sets an amount of movement to be done by the motor as a background process
+    pub fn spin_relative(&self, distance: i32) {
+        unsafe {
+            motors::motor_move_relative(self.port, self.position(), distance);
+        }
+    }
+    ///query the motor's posiiton
+    pub fn position(&self) -> f64 {
+        unsafe { motors::motor_get_position(self.port) }
     }
 }

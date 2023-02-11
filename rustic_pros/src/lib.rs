@@ -20,7 +20,6 @@ fn sleep(millis: u32) {
         pros::rtos::delay(millis);
     }
 }
-
 #[no_mangle]
 pub extern "C" fn rust_initalize() {
     vex_logger::init(log::LevelFilter::Trace);
@@ -34,16 +33,20 @@ pub extern "C" fn rust_autonomous() {}
 pub extern "C" fn rust_disabled() {}
 #[no_mangle]
 pub extern "C" fn rust_usercontrol() {
-    log::error!("errrrror");
-    log::trace!("ofund");
+    let mut voltage = 0;
     loop {
         let c = controller::Controller::new(controller::ControllerType::Primary);
         let mut m = motor::Motor::new(1, motor::BrakeMode::Coast, motor::GearSet::Blue);
+        if c.was_pressed(controller::Button::A) {
+            let stick_pos = c.get_stick(controller::StickAxis::VerticalLeft);
+            log::info!("voltage set to {}", stick_pos);
+            voltage = stick_pos;
+        }
         if c.is_down(controller::Button::B) {
-            m.spin(100);
+            m.spin_voltage(voltage);
         } else {
             m.brake();
         }
-        sleep(200);
+        sleep(100);
     }
 }
